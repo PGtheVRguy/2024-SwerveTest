@@ -15,7 +15,10 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.IntakeCommand;
+import frc.robot.commands.MiscCommand;
 import frc.robot.commands.drivebase.AbsoluteDriveAdv;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 
 import java.io.File;
@@ -31,13 +34,17 @@ public class RobotContainer
   // The robot's subsystems and commands are defined here...
   private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
                                                                          "swerve"));
+
+  private final IntakeSubsystem m_IntakeSubsystem = new IntakeSubsystem();
   // CommandJoystick rotationController = new CommandJoystick(1);
   // Replace with CommandPS4Controller or CommandJoystick if needed
-  CommandJoystick driverController = new CommandJoystick(1);
 
-  
+
   // CommandJoystick driverController   = new CommandJoystick(3);//(OperatorConstants.DRIVER_CONTROLLER_PORT);
   XboxController driverXbox = new XboxController(0);
+  CommandXboxController operatorXbox = new CommandXboxController(1);
+
+  private final IntakeCommand m_IntakeCommand = new IntakeCommand(m_IntakeSubsystem, operatorXbox);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -103,7 +110,14 @@ public class RobotContainer
     new JoystickButton(driverXbox, 7).onTrue((new InstantCommand(drivebase::zeroGyro)));
     new JoystickButton(driverXbox, 8).onTrue(new InstantCommand(drivebase::addFakeVisionReading));
 //    new JoystickButton(driverXbox, 3).whileTrue(new RepeatCommand(new InstantCommand(drivebase::lock, drivebase)));
-  }
+ 
+    new Trigger(operatorXbox.rightTrigger(0.1))
+    .onTrue(m_IntakeCommand);
+    new Trigger(operatorXbox.leftTrigger(0.1))
+    .onTrue(m_IntakeCommand);
+
+   
+}
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
